@@ -10,5 +10,5 @@ class PostLimitOffsetPagination(LimitOffsetPagination):
 
 
 class PostPageNumberPagination(PageNumberPagination):
-	page_size = 1
+	page_size = 10
 	# page_query_param = 'p'
