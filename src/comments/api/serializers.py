@@ -48,12 +48,12 @@ def create_comment_serializer(mode_type='post', slug=None, parent_id=None):
 			if user:
 				main_user = user
 			else:
-				main_user = User.objects.all().first()
-			model_type = self.model_type
-			slug = self.slug
-			parent_obj = self.parent_obj
-			comment = Comment.objects.create_by_model_type(
-				model_type, slug, content, user, parent_obj=parent_obj)
+				user = User.objects.all().first()
+				model_type = self.model_type
+				slug = self.slug
+				parent_obj = self.parent_obj
+				comment = Comment.objects.create_by_model_type(
+					model_type, slug, content, user, parent_obj=parent_obj)
 			return Comment
 
 	return CommentCreateSerializer
@@ -90,17 +90,44 @@ class CommentChildSerializer(ModelSerializer):
 
 class CommentDetailSerializer(ModelSerializer):
 	replies = SerializerMethodField()
-	replies_count = SerializerMethodField()
+	reply_count = SerializerMethodField()
 	class Meta:
 		model = Comment
 		fields = [
 			'id',
 			'content_type',
 			'object_id',
-			'parent',
 			'content',
+			'reply_count',
 			'replies',
-			'replies_count',
+			'timestamp',
+		]
+
+		read_only_fields = [
+			'content_type',
+			'object_id',
+			'reply_count',
+			'replies',
+		]
+		
+
+	def get_replies(self, obj):
+		if obj.is_parent:
+			return CommentChildSerializer(obj.children(), many=True).data
+		return None
+
+	def get_reply_count(self, obj):
+		if obj.is_parent:
+			return obj.children().count()
+		return 0
+
+class CommentEditSerializer(ModelSerializer):
+	class Meta:
+		model = Comment
+		fields = [
+			'id',
+			'content',
+			'timestamp',
 		]
 
 	def get_replies(self, obj):

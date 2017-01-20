@@ -6,6 +6,11 @@ from rest_framework.filters import (
 	OrderingFilter,
 	)
 
+from rest_framework.mixins import (
+	DestroyModelMixin,
+	UpdateModelMixin,
+	)
+
 from rest_framework.generics import (
 	ListAPIView,
 	CreateAPIView,
@@ -71,14 +76,30 @@ class CommentListAPIView(ListAPIView):
 		return queryset_list
 	
 
-class CommentDetailsAPIView(RetrieveAPIView):
+class CommentDetailsAPIView(DestroyModelMixin, UpdateModelMixin, RetrieveAPIView):
 	serializer_class = CommentDetailSerializer
 	queryset = Comment.objects.all()
-
+	permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 	# lookup_url_kwarg = 'abc'
+	def put(self, request, *args, **kwargs):
+		return self.update(request, *args, **kwargs)
+
+	def delete(self, request, *args, **kwargs):
+		return self.destory(request, *args, **kwargs)
+
+	
 
 
+class CommentEditAPIView(DestroyModelMixin, UpdateModelMixin, RetrieveAPIView):
+	queryset = Comment.objects.filter(id__gte=0)
+	serializer_class = CommentDetailSerializer
+	lookup_url_kwarg = 'id'
 
+	def put(self, request, *args, **kwargs):
+		return self.update(request, *args, **kwargs)
+
+	def delete(self, request, *args, **kwargs):
+		return self.destory(request, *args, **kwargs)
 
 # class PostDeleteAPIView(DestroyAPIView):
 # 	serializer_class = PostDetailSerializer
