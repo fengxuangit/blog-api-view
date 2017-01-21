@@ -7,6 +7,8 @@ from rest_framework.serializers import (
 	SerializerMethodField,
 	)
 
+from accounts.api.serializers import UserDetailSerializer
+
 from comments.models import Comment
 
 User = get_user_model()
@@ -79,22 +81,26 @@ class CommentCreateUpdateSerializer(ModelSerializer):
 
 
 class CommentChildSerializer(ModelSerializer):
+	user = UserDetailSerializer(read_only=True)
 	class Meta:
 		model = Comment
 		fields = [
 			'id',
+			'user',
 			'content',
 			'timestamp',
 		]
 
 
 class CommentDetailSerializer(ModelSerializer):
+	user = UserDetailSerializer(read_only=True)
 	replies = SerializerMethodField()
 	reply_count = SerializerMethodField()
 	class Meta:
 		model = Comment
 		fields = [
 			'id',
+			'user',
 			'content_type',
 			'object_id',
 			'content',

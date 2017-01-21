@@ -9,6 +9,8 @@ from comments.api.serializers import (
 	CommentCreateUpdateSerializer,
 	)
 
+from accounts.api.serializers import UserDetailSerializer
+
 from comments.models import Comment
 
 from posts.models import Post
@@ -37,7 +39,7 @@ class PostListSerializer(ModelSerializer):
 	 	view_name = 'posts-api:delete',
 	 	lookup_field = 'slug'
 	 	)
-	user = SerializerMethodField()
+	user = UserDetailSerializer(read_only=True)
 	image = SerializerMethodField()
 	html = SerializerMethodField()
 	comments = SerializerMethodField()
@@ -56,10 +58,6 @@ class PostListSerializer(ModelSerializer):
 			'image',
 			'comments'
 		]
-
-	def get_user(self, obj):
-		return str(obj.user.username)
-
 
 	def get_image(self, obj):
 		try:
@@ -81,7 +79,7 @@ class PostListSerializer(ModelSerializer):
 
 class PostDetailSerializer(ModelSerializer):
 	url = list_detail_url
-	user = SerializerMethodField()
+	user = UserDetailSerializer(read_only=True)
 	image = SerializerMethodField()
 	class Meta:
 		model = Post
@@ -95,9 +93,6 @@ class PostDetailSerializer(ModelSerializer):
 			'publish',
 			'image',
 		]
-
-	def get_user(self, obj):
-		return str(obj.user.username)
 
 
 	def get_image(self, obj):
